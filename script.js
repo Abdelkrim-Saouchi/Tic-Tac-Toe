@@ -1,8 +1,6 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-lonely-if */
 const gameBoard = [];
-
-// let playerOneChoice = 'X';
-// let playerTwoChoice = 'O';
 
 const Player = (choice, status) => {
   let canPlay = status;
@@ -15,50 +13,91 @@ const Player = (choice, status) => {
 const playerOne = Player('X', true);
 const playerTwo = Player('O', false);
 
-const choiceDivs = Array.from(document.querySelectorAll('.choice'));
-// const gameGrid = document.querySelector('.game-grid');
-const gameGridCells = document.querySelectorAll('.game-grid-cell');
+const getDom = () => {
+  const choiceDivs = Array.from(document.querySelectorAll('.choice'));
+  const gameGridCells = Array.from(
+    document.querySelectorAll('.game-grid-cell')
+  );
+  return { choiceDivs, gameGridCells };
+};
+
+const gameDom = getDom();
 
 const renderDom = () => {
-  gameGridCells.forEach((gameGridCell) => {
+  gameDom.gameGridCells.forEach((gameGridCell) => {
     gameGridCell.textContent = gameBoard[gameGridCell.dataset.index];
+  });
+};
+
+const endGameRow = (index1, index2, index3) => {
+  document.querySelector(`[data-index="${index1}"]`).style.backgroundColor =
+    'green';
+  document.querySelector(`[data-index="${index2}"]`).style.backgroundColor =
+    'green';
+  document.querySelector(`[data-index="${index3}"]`).style.backgroundColor =
+    'green';
+  gameDom.gameGridCells.forEach((gameGridCell) => {
+    gameGridCell.removeEventListener('click', AddMarkEventHandler);
   });
 };
 
 const declareResult = (playerMark) => {
   if (
-    (gameBoard[0] === playerMark &&
-      gameBoard[1] === playerMark &&
-      gameBoard[2]) === playerMark ||
-    (gameBoard[3] === playerMark &&
-      gameBoard[4] === playerMark &&
-      gameBoard[5]) === playerMark ||
-    (gameBoard[6] === playerMark &&
-      gameBoard[7] === playerMark &&
-      gameBoard[8]) === playerMark
+    gameBoard[0] === playerMark &&
+    gameBoard[1] === playerMark &&
+    gameBoard[2] === playerMark
   ) {
     console.log(`${playerMark} wins`);
+    endGameRow(0, 1, 2);
   } else if (
-    (gameBoard[0] === playerMark &&
-      gameBoard[3] === playerMark &&
-      gameBoard[6]) === playerMark ||
-    (gameBoard[1] === playerMark &&
-      gameBoard[4] === playerMark &&
-      gameBoard[7]) === playerMark ||
-    (gameBoard[2] === playerMark &&
-      gameBoard[5] === playerMark &&
-      gameBoard[8]) === playerMark
+    gameBoard[3] === playerMark &&
+    gameBoard[4] === playerMark &&
+    gameBoard[5] === playerMark
   ) {
     console.log(`${playerMark} wins`);
+    endGameRow(3, 4, 5);
   } else if (
-    (gameBoard[0] === playerMark &&
-      gameBoard[4] === playerMark &&
-      gameBoard[8]) === playerMark ||
-    (gameBoard[2] === playerMark &&
-      gameBoard[4] === playerMark &&
-      gameBoard[6]) === playerMark
+    gameBoard[6] === playerMark &&
+    gameBoard[7] === playerMark &&
+    gameBoard[8] === playerMark
   ) {
     console.log(`${playerMark} wins`);
+    endGameRow(6, 7, 8);
+  } else if (
+    gameBoard[0] === playerMark &&
+    gameBoard[3] === playerMark &&
+    gameBoard[6] === playerMark
+  ) {
+    console.log(`${playerMark} wins`);
+    endGameRow(0, 3, 6);
+  } else if (
+    gameBoard[1] === playerMark &&
+    gameBoard[4] === playerMark &&
+    gameBoard[7] === playerMark
+  ) {
+    console.log(`${playerMark} wins`);
+    endGameRow(1, 4, 7);
+  } else if (
+    gameBoard[2] === playerMark &&
+    gameBoard[5] === playerMark &&
+    gameBoard[8] === playerMark
+  ) {
+    console.log(`${playerMark} wins`);
+    endGameRow(2, 5, 8);
+  } else if (
+    gameBoard[0] === playerMark &&
+    gameBoard[4] === playerMark &&
+    gameBoard[8] === playerMark
+  ) {
+    console.log(`${playerMark} wins`);
+    endGameRow(0, 4, 8);
+  } else if (
+    gameBoard[2] === playerMark &&
+    gameBoard[4] === playerMark &&
+    gameBoard[6] === playerMark
+  ) {
+    console.log(`${playerMark} wins`);
+    endGameRow(2, 4, 6);
   } else {
     if (!gameBoard.includes(undefined) && gameBoard.length === 9)
       console.log('Tie');
@@ -86,7 +125,7 @@ const setPlayerChoice = (target) => {
   }
 };
 
-choiceDivs.forEach((choiceDiv) => {
+gameDom.choiceDivs.forEach((choiceDiv) => {
   choiceDiv.addEventListener('click', (e) => {
     setPlayerChoice(e.target);
   });
@@ -102,22 +141,22 @@ const addMark = (target) => {
       playerOne.canPlay = false;
       playerTwo.canPlay = true;
       renderDom();
-      //   declareResult(playerOne.choice);
     } else {
       gameBoard[target.dataset.index] = playerTwo.choice;
       playerTwo.canPlay = false;
       playerOne.canPlay = true;
       renderDom();
-      //   declareResult(playerTwo.choice);
     }
   }
 };
 
-gameGridCells.forEach((gameGridCell) => {
-  gameGridCell.addEventListener('click', (e) => {
-    addMark(e.target);
-    declareResult(e.target.textContent);
-  });
+function AddMarkEventHandler(e) {
+  addMark(e.target);
+  declareResult(e.target.textContent);
+}
+
+gameDom.gameGridCells.forEach((gameGridCell) => {
+  gameGridCell.addEventListener('click', AddMarkEventHandler);
 });
 
 renderDom();
