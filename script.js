@@ -16,7 +16,7 @@ const playerOne = Player('X', true);
 const playerTwo = Player('O', false);
 
 const choiceDivs = Array.from(document.querySelectorAll('.choice'));
-const gameGrid = document.querySelector('.game-grid');
+// const gameGrid = document.querySelector('.game-grid');
 const gameGridCells = document.querySelectorAll('.game-grid-cell');
 
 const renderDom = () => {
@@ -37,7 +37,6 @@ const declareResult = (playerMark) => {
       gameBoard[7] === playerMark &&
       gameBoard[8]) === playerMark
   ) {
-    console.log('enter 1');
     console.log(`${playerMark} wins`);
   } else if (
     (gameBoard[0] === playerMark &&
@@ -50,7 +49,6 @@ const declareResult = (playerMark) => {
       gameBoard[5] === playerMark &&
       gameBoard[8]) === playerMark
   ) {
-    console.log('enter 2');
     console.log(`${playerMark} wins`);
   } else if (
     (gameBoard[0] === playerMark &&
@@ -60,61 +58,65 @@ const declareResult = (playerMark) => {
       gameBoard[4] === playerMark &&
       gameBoard[6]) === playerMark
   ) {
-    console.log('enter 3');
     console.log(`${playerMark} wins`);
   } else {
-    console.log('enter 4');
-    console.log(gameBoard.length);
     if (!gameBoard.includes(undefined) && gameBoard.length === 9)
       console.log('Tie');
   }
 };
 
+const setPlayerChoice = (target) => {
+  const { choice } = target.dataset;
+  if (choice.includes('1')) {
+    if (choice === '1-x') {
+      playerOne.choice = 'X';
+      playerTwo.choice = 'O';
+    } else {
+      playerOne.choice = 'O';
+      playerTwo.choice = 'X';
+    }
+  } else {
+    if (choice === '2-x') {
+      playerOne.choice = 'O';
+      playerTwo.choice = 'X';
+    } else {
+      playerOne.choice = 'X';
+      playerTwo.choice = 'O';
+    }
+  }
+};
+
 choiceDivs.forEach((choiceDiv) => {
   choiceDiv.addEventListener('click', (e) => {
-    const { choice } = e.target.dataset;
-    if (choice.includes('1')) {
-      if (choice === '1-x') {
-        playerOne.choice = 'X';
-        playerTwo.choice = 'O';
-      } else {
-        playerOne.choice = 'O';
-        playerTwo.choice = 'X';
-      }
-    } else {
-      if (choice === '2-x') {
-        playerOne.choice = 'O';
-        playerTwo.choice = 'X';
-      } else {
-        playerOne.choice = 'X';
-        playerTwo.choice = 'O';
-      }
-    }
+    setPlayerChoice(e.target);
   });
 });
 
+const addMark = (target) => {
+  if (
+    target.textContent !== playerOne.choice &&
+    target.textContent !== playerTwo.choice
+  ) {
+    if (playerOne.canPlay) {
+      gameBoard[target.dataset.index] = playerOne.choice;
+      playerOne.canPlay = false;
+      playerTwo.canPlay = true;
+      renderDom();
+      //   declareResult(playerOne.choice);
+    } else {
+      gameBoard[target.dataset.index] = playerTwo.choice;
+      playerTwo.canPlay = false;
+      playerOne.canPlay = true;
+      renderDom();
+      //   declareResult(playerTwo.choice);
+    }
+  }
+};
+
 gameGridCells.forEach((gameGridCell) => {
   gameGridCell.addEventListener('click', (e) => {
-    if (
-      e.target.textContent !== playerOne.choice &&
-      e.target.textContent !== playerTwo.choice
-    ) {
-      if (playerOne.canPlay) {
-        gameBoard[e.target.dataset.index] = playerOne.choice;
-        playerOne.canPlay = false;
-        playerTwo.canPlay = true;
-        renderDom();
-        declareResult(playerOne.choice);
-        // declareResult(playerTwo.choice);
-      } else {
-        gameBoard[e.target.dataset.index] = playerTwo.choice;
-        playerTwo.canPlay = false;
-        playerOne.canPlay = true;
-        renderDom();
-        declareResult(playerTwo.choice);
-        // declareResult(playerOne.choice);
-      }
-    }
+    addMark(e.target);
+    declareResult(e.target.textContent);
   });
 });
 
