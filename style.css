@@ -19,6 +19,24 @@ h1 {
 
 .controllers {
   display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+}
+
+.controllers p {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.controllers .opponent {
+  display: flex;
+  gap: 32px;
+  align-self: center;
+}
+
+.controllers .human-opponent {
+  display: flex;
   gap: 32px;
 }
 
@@ -33,6 +51,14 @@ h1 {
   display: grid;
   place-content: center;
   cursor: pointer;
+}
+
+.choice [data-choice='1-x'] {
+  background-color: grey;
+}
+
+.choice [data-choice='2-o'] {
+  background-color: grey;
 }
 
 .choice [data-choice]:hover {

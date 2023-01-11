@@ -16,6 +16,8 @@ const Player = (choice, status) => {
 };
 
 const DisplayController = (() => {
+  let canSwitchMarks = true;
+  let computerIsPlaying = true;
   // get game DOM
   const getDom = () => {
     const choiceDivs = Array.from(document.querySelectorAll('.choice'));
@@ -28,6 +30,11 @@ const DisplayController = (() => {
     const oneO = document.querySelector('[data-choice="1-o"]');
     const twoX = document.querySelector('[data-choice="2-x"]');
     const twoO = document.querySelector('[data-choice="2-o"]');
+    const humanOpponent = document.querySelector('#human');
+    const computerOpponent = document.querySelector('#computer');
+    const humanOpponentChoices = document.querySelector('.human-opponent');
+    const opponentOne = document.querySelector('.player-one h2');
+    const opponentTwo = document.querySelector('.player-two h2');
     return {
       choiceDivs,
       gameGridCells,
@@ -37,6 +44,11 @@ const DisplayController = (() => {
       oneO,
       twoX,
       twoO,
+      humanOpponent,
+      computerOpponent,
+      humanOpponentChoices,
+      opponentOne,
+      opponentTwo,
     };
   };
 
@@ -49,49 +61,61 @@ const DisplayController = (() => {
     });
   };
 
+  // choose opponent : computer or human
+  // const chooseOpponent = (target, nameOne, nameTwo) => {
+  //   if (target.checked) {
+  //     gameDom.opponentOne.textContent = nameOne;
+
+  //   }
+  // };
+
   // set player Choice
   const setPlayerChoice = (target) => {
     const { choice } = target.dataset;
-    if (choice.includes('1')) {
-      if (choice === '1-x') {
-        playerOne.choice = 'X';
-        playerTwo.choice = 'O';
+    if (canSwitchMarks) {
+      if (choice.includes('1')) {
+        if (choice === '1-x') {
+          playerOne.choice = 'X';
+          playerTwo.choice = 'O';
+        } else {
+          playerOne.choice = 'O';
+          playerTwo.choice = 'X';
+        }
       } else {
-        playerOne.choice = 'O';
-        playerTwo.choice = 'X';
-      }
-    } else {
-      if (choice === '2-x') {
-        playerOne.choice = 'O';
-        playerTwo.choice = 'X';
-      } else {
-        playerOne.choice = 'X';
-        playerTwo.choice = 'O';
+        if (choice === '2-x') {
+          playerOne.choice = 'O';
+          playerTwo.choice = 'X';
+        } else {
+          playerOne.choice = 'X';
+          playerTwo.choice = 'O';
+        }
       }
     }
   };
   // set background of player choice div
   const setChoiceBg = (target) => {
-    if (target === gameDom.oneX) {
-      gameDom.oneX.style.backgroundColor = 'grey';
-      gameDom.oneO.style.backgroundColor = 'white';
-      gameDom.twoX.style.backgroundColor = 'white';
-      gameDom.twoO.style.backgroundColor = 'grey';
-    } else if (target === gameDom.oneO) {
-      gameDom.oneO.style.backgroundColor = 'grey';
-      gameDom.oneX.style.backgroundColor = 'white';
-      gameDom.twoX.style.backgroundColor = 'grey';
-      gameDom.twoO.style.backgroundColor = 'white';
-    } else if (target === gameDom.twoX) {
-      gameDom.twoX.style.backgroundColor = 'grey';
-      gameDom.twoO.style.backgroundColor = 'white';
-      gameDom.oneX.style.backgroundColor = 'white';
-      gameDom.oneO.style.backgroundColor = 'grey';
-    } else if (target === gameDom.twoO) {
-      gameDom.twoO.style.backgroundColor = 'grey';
-      gameDom.twoX.style.backgroundColor = 'white';
-      gameDom.oneX.style.backgroundColor = 'grey';
-      gameDom.oneO.style.backgroundColor = 'white';
+    if (canSwitchMarks) {
+      if (target === gameDom.oneX) {
+        gameDom.oneX.style.backgroundColor = 'grey';
+        gameDom.oneO.style.backgroundColor = 'white';
+        gameDom.twoX.style.backgroundColor = 'white';
+        gameDom.twoO.style.backgroundColor = 'grey';
+      } else if (target === gameDom.oneO) {
+        gameDom.oneO.style.backgroundColor = 'grey';
+        gameDom.oneX.style.backgroundColor = 'white';
+        gameDom.twoX.style.backgroundColor = 'grey';
+        gameDom.twoO.style.backgroundColor = 'white';
+      } else if (target === gameDom.twoX) {
+        gameDom.twoX.style.backgroundColor = 'grey';
+        gameDom.twoO.style.backgroundColor = 'white';
+        gameDom.oneX.style.backgroundColor = 'white';
+        gameDom.oneO.style.backgroundColor = 'grey';
+      } else if (target === gameDom.twoO) {
+        gameDom.twoO.style.backgroundColor = 'grey';
+        gameDom.twoX.style.backgroundColor = 'white';
+        gameDom.oneX.style.backgroundColor = 'grey';
+        gameDom.oneO.style.backgroundColor = 'white';
+      }
     }
   };
 
@@ -113,6 +137,11 @@ const DisplayController = (() => {
         renderDom();
       }
     }
+    // prevent changing marks after game start
+    canSwitchMarks = false;
+    // prevent changing play mode after game start
+    gameDom.computerOpponent.disabled = true;
+    gameDom.humanOpponent.disabled = true;
   };
   // wrap event functions to add/remove them from clicked target
   function AddMarkEventHandler(e) {
@@ -135,15 +164,31 @@ const DisplayController = (() => {
 
   // display winning div to declare winner
   const displayWinnerMsg = (winner) => {
-    if (winner === undefined) {
-      gameDom.winningMsg.firstElementChild.textContent = 'Tie!';
-    } else {
-      if (winner === playerOne.choice) {
-        winner = 'Player One';
+    // Computer is playing
+    if (computerIsPlaying) {
+      if (winner === undefined) {
+        gameDom.winningMsg.firstElementChild.textContent = 'Tie!';
       } else {
-        winner = 'Player Two';
+        if (winner === playerOne.choice) {
+          winner = 'Player';
+        } else {
+          winner = 'Computer';
+        }
+        gameDom.winningMsg.firstElementChild.textContent = `${winner} wins`;
       }
-      gameDom.winningMsg.firstElementChild.textContent = `${winner} wins`;
+    }
+    // Human is playing
+    else {
+      if (winner === undefined) {
+        gameDom.winningMsg.firstElementChild.textContent = 'Tie!';
+      } else {
+        if (winner === playerOne.choice) {
+          winner = 'Player One';
+        } else {
+          winner = 'Player Two';
+        }
+        gameDom.winningMsg.firstElementChild.textContent = `${winner} wins`;
+      }
     }
     setTimeout(() => {
       gameDom.winningMsg.style.display = 'grid';
@@ -228,14 +273,32 @@ const DisplayController = (() => {
         playerOne.canPlay = true;
         playerTwo.canPlay = false;
       });
+      // restore marks choices
+      canSwitchMarks = true;
+      // restore the possibility to choose game mode (human or computer)
+      gameDom.computerOpponent.disabled = false;
+      gameDom.humanOpponent.disabled = false;
     });
   };
 
+  // choose human opponent
+  gameDom.humanOpponent.addEventListener('change', () => {
+    gameDom.opponentOne.textContent = 'Player One:';
+    gameDom.opponentTwo.textContent = 'Player Two:';
+    computerIsPlaying = false;
+  });
+  // choose computer opponent
+  gameDom.computerOpponent.addEventListener('change', () => {
+    gameDom.opponentOne.textContent = 'Player:';
+    gameDom.opponentTwo.textContent = 'Computer:';
+    computerIsPlaying = true;
+  });
   // so can player choose X or O
   gameDom.choiceDivs.forEach((choiceDiv) => {
     choiceDiv.addEventListener('click', (e) => {
       setPlayerChoice(e.target);
       setChoiceBg(e.target);
+      // canSwitchMarks = false;
     });
   });
 
