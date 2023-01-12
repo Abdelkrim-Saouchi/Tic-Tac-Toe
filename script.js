@@ -70,7 +70,6 @@ const displayController = (() => {
       gameBoardObj.gameBoard[randomIndex] !== 'O'
     ) {
       gameBoardObj.gameBoard[randomIndex] = playerTwo.choice;
-      playerTwo.canPlay = false;
     } else {
       if (
         !gameBoardObj.gameBoard.includes(undefined) &&
@@ -137,20 +136,24 @@ const displayController = (() => {
   // add X or O to game
   const addMark = (target) => {
     if (
+      // if cell is available
       target.textContent !== playerOne.choice &&
       target.textContent !== playerTwo.choice
     ) {
+      // if it is the player one's/player's turn
       if (playerOne.canPlay) {
         gameBoardObj.gameBoard[target.dataset.index] = playerOne.choice;
+        // switch play turn
         playerOne.canPlay = false;
         playerTwo.canPlay = true;
+        // render dom
         renderDom();
         // if game mode is against computer then if player plays computer plays
         if (computerIsPlaying) {
           setTimeout(() => {
             randomComputerPlay();
-            renderDom();
             declareResult(playerTwo.choice); // declare result if computer wins
+            renderDom();
             playerTwo.canPlay = false;
             playerOne.canPlay = true;
           }, 2000);
@@ -158,6 +161,7 @@ const displayController = (() => {
       }
       // if game mode is playing against human
       else if (!computerIsPlaying) {
+        // player two is human
         gameBoardObj.gameBoard[target.dataset.index] = playerTwo.choice;
         playerTwo.canPlay = false;
         playerOne.canPlay = true;
@@ -199,8 +203,10 @@ const displayController = (() => {
       } else {
         if (winner === playerOne.choice) {
           winner = 'Player';
+          playerTwo.canPlay = false;
         } else {
           winner = 'Computer';
+          playerOne.canPlay = false;
         }
         gameDom.winningMsg.firstElementChild.textContent = `${winner} wins`;
       }
@@ -283,11 +289,11 @@ const displayController = (() => {
       displayWinnerMsg(playerMark);
     } else if (
       !gameBoardObj.gameBoard.includes(undefined) &&
-      gameBoardObj.gameBoard.length === 9 &&
-      !computerIsPlaying
+      gameBoardObj.gameBoard.length === 9
     ) {
       displayWinnerMsg();
     }
+    // else {}
   };
 
   // restart game function
