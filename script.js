@@ -1,3 +1,5 @@
+/* eslint-disable no-else-return */
+/* eslint-disable no-useless-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-lonely-if */
@@ -61,13 +63,26 @@ const DisplayController = (() => {
     });
   };
 
-  // choose opponent : computer or human
-  // const chooseOpponent = (target, nameOne, nameTwo) => {
-  //   if (target.checked) {
-  //     gameDom.opponentOne.textContent = nameOne;
-
-  //   }
-  // };
+  // random computer choice
+  const randomComputerPlay = () => {
+    const randomIndex = Math.floor(Math.random() * (9 - 0) + 0);
+    if (
+      gameBoardObj.gameBoard[randomIndex] !== 'X' &&
+      gameBoardObj.gameBoard[randomIndex] !== 'O'
+    ) {
+      gameBoardObj.gameBoard[randomIndex] = playerTwo.choice;
+      playerTwo.canPlay = false;
+    } else {
+      if (
+        !gameBoardObj.gameBoard.includes(undefined) &&
+        gameBoardObj.gameBoard.length === 9
+      ) {
+        return;
+      } else {
+        randomComputerPlay();
+      }
+    }
+  };
 
   // set player Choice
   const setPlayerChoice = (target) => {
@@ -76,7 +91,7 @@ const DisplayController = (() => {
       if (choice.includes('1')) {
         if (choice === '1-x') {
           playerOne.choice = 'X';
-          playerTwo.choice = 'O';
+          playerTwo.choice = 'O'; // computer choice too
         } else {
           playerOne.choice = 'O';
           playerTwo.choice = 'X';
@@ -130,7 +145,17 @@ const DisplayController = (() => {
         playerOne.canPlay = false;
         playerTwo.canPlay = true;
         renderDom();
-      } else {
+        // if game mode is against computer then if player plays computer plays
+        if (computerIsPlaying) {
+          setTimeout(() => {
+            randomComputerPlay();
+            renderDom();
+            declareResult(playerTwo.choice); // declare result if computer wins
+            playerTwo.canPlay = false;
+            playerOne.canPlay = true;
+          }, 2000);
+        }
+      } else if (!computerIsPlaying) {
         gameBoardObj.gameBoard[target.dataset.index] = playerTwo.choice;
         playerTwo.canPlay = false;
         playerOne.canPlay = true;
@@ -255,7 +280,8 @@ const DisplayController = (() => {
       displayWinnerMsg(playerMark);
     } else if (
       !gameBoardObj.gameBoard.includes(undefined) &&
-      gameBoardObj.gameBoard.length === 9
+      gameBoardObj.gameBoard.length === 9 &&
+      !computerIsPlaying
     ) {
       displayWinnerMsg();
     }
