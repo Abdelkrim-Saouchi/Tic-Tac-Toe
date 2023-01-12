@@ -1,14 +1,11 @@
-/* eslint-disable no-else-return */
-/* eslint-disable no-useless-return */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-lonely-if */
+// game Board module to hold gameBoard array
 const gameBoardObj = (() => {
   const gameBoard = [];
 
   return { gameBoard };
 })();
 
+// Factory function to create players
 const Player = (choice, status) => {
   let canPlay = status;
   const setPlay = (setValue) => {
@@ -17,7 +14,8 @@ const Player = (choice, status) => {
   return { choice, setPlay, canPlay };
 };
 
-const DisplayController = (() => {
+// game display module
+const displayController = (() => {
   let canSwitchMarks = true;
   let computerIsPlaying = true;
   // get game DOM
@@ -55,6 +53,7 @@ const DisplayController = (() => {
   };
 
   const gameDom = getDom();
+
   // Render DOM
   const renderDom = () => {
     gameDom.gameGridCells.forEach((gameGridCell) => {
@@ -77,7 +76,8 @@ const DisplayController = (() => {
         !gameBoardObj.gameBoard.includes(undefined) &&
         gameBoardObj.gameBoard.length === 9
       ) {
-        return;
+        // eslint-disable-next-line no-useless-return
+        return; // stop recursion if gameBoard array is full
       } else {
         randomComputerPlay();
       }
@@ -155,7 +155,9 @@ const DisplayController = (() => {
             playerOne.canPlay = true;
           }, 2000);
         }
-      } else if (!computerIsPlaying) {
+      }
+      // if game mode is playing against human
+      else if (!computerIsPlaying) {
         gameBoardObj.gameBoard[target.dataset.index] = playerTwo.choice;
         playerTwo.canPlay = false;
         playerOne.canPlay = true;
@@ -168,6 +170,7 @@ const DisplayController = (() => {
     gameDom.computerOpponent.disabled = true;
     gameDom.humanOpponent.disabled = true;
   };
+
   // wrap event functions to add/remove them from clicked target
   function AddMarkEventHandler(e) {
     addMark(e.target);
@@ -341,5 +344,5 @@ const playerOne = Player('X', true);
 const playerTwo = Player('O', false);
 
 // run game
-DisplayController.restartGame();
-DisplayController.renderDom();
+displayController.restartGame();
+displayController.renderDom();
