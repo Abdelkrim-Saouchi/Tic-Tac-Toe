@@ -16,8 +16,12 @@ const Player = (choice, status) => {
 
 // game display module
 const displayController = (() => {
+  // playing turn
   let canSwitchMarks = true;
+  // computer mode or human mode
   let computerIsPlaying = true;
+  // to prevent display tie message if there is a winner
+  let isThereWinner = false;
   // get game DOM
   const getDom = () => {
     const choiceDivs = Array.from(document.querySelectorAll('.choice'));
@@ -238,6 +242,7 @@ const displayController = (() => {
     ) {
       endGameRow(0, 1, 2);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[3] === playerMark &&
       gameBoardObj.gameBoard[4] === playerMark &&
@@ -245,6 +250,7 @@ const displayController = (() => {
     ) {
       endGameRow(3, 4, 5);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[6] === playerMark &&
       gameBoardObj.gameBoard[7] === playerMark &&
@@ -252,6 +258,7 @@ const displayController = (() => {
     ) {
       endGameRow(6, 7, 8);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[0] === playerMark &&
       gameBoardObj.gameBoard[3] === playerMark &&
@@ -259,6 +266,7 @@ const displayController = (() => {
     ) {
       endGameRow(0, 3, 6);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[1] === playerMark &&
       gameBoardObj.gameBoard[4] === playerMark &&
@@ -266,6 +274,7 @@ const displayController = (() => {
     ) {
       endGameRow(1, 4, 7);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[2] === playerMark &&
       gameBoardObj.gameBoard[5] === playerMark &&
@@ -273,6 +282,7 @@ const displayController = (() => {
     ) {
       endGameRow(2, 5, 8);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[0] === playerMark &&
       gameBoardObj.gameBoard[4] === playerMark &&
@@ -280,6 +290,7 @@ const displayController = (() => {
     ) {
       endGameRow(0, 4, 8);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       gameBoardObj.gameBoard[2] === playerMark &&
       gameBoardObj.gameBoard[4] === playerMark &&
@@ -287,13 +298,17 @@ const displayController = (() => {
     ) {
       endGameRow(2, 4, 6);
       displayWinnerMsg(playerMark);
+      isThereWinner = true;
     } else if (
       !gameBoardObj.gameBoard.includes(undefined) &&
       gameBoardObj.gameBoard.length === 9
     ) {
-      displayWinnerMsg();
+      if (!isThereWinner) {
+        displayWinnerMsg();
+      } else if (!computerIsPlaying) {
+        displayWinnerMsg();
+      }
     }
-    // else {}
   };
 
   // restart game function
