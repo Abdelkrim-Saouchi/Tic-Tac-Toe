@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 const gameController = (playerOne, playerTwo) => {
   const gameBoard = [
     [' ', ' ', ' '],
@@ -5,7 +6,7 @@ const gameController = (playerOne, playerTwo) => {
     [' ', ' ', ' '],
   ];
 
-  const BOARD_CELLS = 9;
+  let currentPlayer = playerOne;
   const printBoard = (board) => {
     console.log(`
       ${board[0][0]}, ${board[0][1]}, ${board[0][2]}
@@ -14,8 +15,8 @@ const gameController = (playerOne, playerTwo) => {
     `);
   };
 
-  const switchPlayerTurn = (currentPlayer) =>
-    currentPlayer === playerOne ? playerTwo : playerOne;
+  const switchPlayerTurn = (player) =>
+    player === playerOne ? playerTwo : playerOne;
 
   const checkAvailability = (board, rowIndex, columnIndex) =>
     board[rowIndex][columnIndex] === ' ';
@@ -61,30 +62,40 @@ const gameController = (playerOne, playerTwo) => {
     return false;
   };
 
-  const playRound = () => {
-    printBoard(gameBoard);
-    console.log('Game start!');
-
-    let player = playerOne;
-    console.log(`player ${player} turn!`);
-    play(gameBoard, player);
-
-    printBoard(gameBoard);
-    for (let i = 0; i < BOARD_CELLS - 1; i++) {
-      player = switchPlayerTurn(player);
-      console.log(`player ${player} turn!`);
-      play(gameBoard, player);
-      printBoard(gameBoard);
-      if (isThereWinner(gameBoard, player)) {
-        console.log(`winner is ${player}`);
-        break;
-      }
-      if (!isThereWinner(gameBoard, player) && i === BOARD_CELLS - 2) {
-        console.log('Draw');
+  const isNotFull = (board) => {
+    let counter = 1;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] === ' ') {
+          counter += 1;
+        }
       }
     }
+    if (counter > 1) {
+      // console.log(`counter is : ${counter}`);
+      return true;
+    } else {
+      // console.log(`else counter is ${counter}`);
+      return false;
+    }
   };
-  return { playRound };
+
+  const playRound = (row, col) => {
+    // printBoard(gameBoard);
+
+    if (checkAvailability(gameBoard, row, col)) {
+      gameBoard[row][col] = currentPlayer;
+      if (isThereWinner(gameBoard, currentPlayer)) {
+        console.log(`Winner is ${currentPlayer}`);
+      }
+      if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
+        console.log('Draw');
+      }
+      currentPlayer = switchPlayerTurn(currentPlayer);
+      console.log(`player ${currentPlayer} turn!`);
+    }
+  };
+  return { playRound, gameBoard };
 };
 
 const Player = (mark) => ({ mark });
@@ -93,4 +104,53 @@ const playerOne = Player('X');
 const playerTwo = Player('O');
 
 const game = gameController(playerOne.mark, playerTwo.mark);
-game.playRound();
+// game.playRound();
+
+const screenController = (gridBoard) => {
+  const body = document.querySelector('body');
+  const gameTitle = document.querySelector('h1');
+
+  const createGameGrid = (board) => {
+    const gridContainer = document.createElement('div');
+    gridContainer.classList.add('game-grid-container');
+    const gameGrid = document.createElement('div');
+    gameGrid.classList.add('game-grid');
+
+    gridContainer.appendChild(gameGrid);
+
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        const cell = document.createElement('div');
+        cell.classList.add('game-grid-cell');
+        cell.textContent = ' ';
+        cell.dataset.rowIndex = i;
+        cell.dataset.columnIndex = j;
+        gameGrid.append(cell);
+      }
+    }
+
+    return gridContainer;
+  };
+
+  const populateBoard = (board) => {
+    const cells = document.querySelectorAll('.game-grid-cell');
+    const cellsList = Array.from(cells);
+    cellsList.forEach((cell) => {
+      cell.textContent = board[cell.dataset.rowIndex][cell.dataset.columnIndex];
+    });
+  };
+
+  const grid = createGameGrid(gridBoard);
+  body.appendChild(grid);
+  populateBoard(gridBoard);
+
+  grid.addEventListener('click', (e) => {
+    // do not forget lines between click problem
+    game.playRound(e.target.dataset.rowIndex, e.target.dataset.columnIndex);
+    populateBoard(gridBoard);
+  });
+
+  return { body };
+};
+
+screenController(game.gameBoard);
