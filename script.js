@@ -7,6 +7,8 @@ const gameController = (playerOne, playerTwo) => {
   ];
 
   let currentPlayer = playerOne;
+  let canPlay = true;
+
   const printBoard = (board) => {
     console.log(`
       ${board[0][0]}, ${board[0][1]}, ${board[0][2]}
@@ -83,19 +85,38 @@ const gameController = (playerOne, playerTwo) => {
   const playRound = (row, col) => {
     // printBoard(gameBoard);
 
-    if (checkAvailability(gameBoard, row, col)) {
-      gameBoard[row][col] = currentPlayer;
-      if (isThereWinner(gameBoard, currentPlayer)) {
-        console.log(`Winner is ${currentPlayer}`);
+    if (canPlay) {
+      // console.log(`player ${currentPlayer} turn!`);
+      // currentPlayer = switchPlayerTurn(currentPlayer);
+      if (checkAvailability(gameBoard, row, col)) {
+        gameBoard[row][col] = currentPlayer;
+        if (isThereWinner(gameBoard, currentPlayer)) {
+          console.log(`Winner is ${currentPlayer}`);
+          canPlay = false;
+        }
+        if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
+          console.log('Draw');
+          canPlay = false;
+        }
+        console.log(canPlay);
+        if (canPlay) {
+          currentPlayer = switchPlayerTurn(currentPlayer);
+          console.log(`player ${currentPlayer} turn!`);
+        }
       }
-      if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
-        console.log('Draw');
+    }
+    return [canPlay, currentPlayer];
+  };
+
+  const clearBoard = (board) => {
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        board[i][j] = ' ';
       }
-      currentPlayer = switchPlayerTurn(currentPlayer);
-      console.log(`player ${currentPlayer} turn!`);
     }
   };
-  return { playRound, gameBoard };
+
+  return { playRound, gameBoard, clearBoard };
 };
 
 const Player = (mark) => ({ mark });
@@ -132,6 +153,24 @@ const screenController = (gridBoard) => {
     return gridContainer;
   };
 
+  const createWinnerAndRestartPage = () => {
+    const page = document.createElement('div');
+    page.classList.add('winning-message');
+
+    const winnerPara = document.createElement('p');
+    const restartBtn = document.createElement('button');
+    restartBtn.id = 'restart';
+    restartBtn.textContent = 'Restart';
+
+    page.append(winnerPara, restartBtn);
+
+    return page;
+  };
+
+  const displaywinnerAndRestartPage = (page, display) => {
+    page.style.display = display;
+  };
+
   const populateBoard = (board) => {
     const cells = document.querySelectorAll('.game-grid-cell');
     const cellsList = Array.from(cells);
@@ -141,16 +180,32 @@ const screenController = (gridBoard) => {
   };
 
   const grid = createGameGrid(gridBoard);
+  const winnerPage = createWinnerAndRestartPage();
+
   body.appendChild(grid);
+  body.appendChild(winnerPage);
   populateBoard(gridBoard);
 
   grid.addEventListener('click', (e) => {
     // do not forget lines between click problem
-    game.playRound(e.target.dataset.rowIndex, e.target.dataset.columnIndex);
+    const [canPlay, currentPlayer] = game.playRound(
+      e.target.dataset.rowIndex,
+      e.target.dataset.columnIndex
+    );
     populateBoard(gridBoard);
+
+    if (!canPlay) {
+      winnerPage.firstElementChild.textContent = `winner is ${currentPlayer}`;
+      displaywinnerAndRestartPage(winnerPage, 'grid');
+    }
   });
 
-  return { body };
+  const restartBtn = document.querySelector('#restart');
+  restartBtn.addEventListener('click', () => {
+    displaywinnerAndRestartPage(winnerPage, 'none');
+    game.clearBoard(gridBoard);
+    populateBoard(gridBoard);
+  });
 };
 
 screenController(game.gameBoard);
