@@ -105,7 +105,7 @@ const gameController = (playerOne, playerTwo) => {
         }
       }
     }
-    return [canPlay, currentPlayer];
+    // return [canPlay, currentPlayer];
   };
 
   const clearBoard = (board) => {
@@ -116,7 +116,24 @@ const gameController = (playerOne, playerTwo) => {
     }
   };
 
-  return { playRound, gameBoard, clearBoard };
+  const getCanPlay = () => canPlay;
+  const setCanPlay = (value) => {
+    canPlay = value;
+  };
+  const getCurrentPlayer = () => currentPlayer;
+  const setCurrentPlayer = (value) => {
+    currentPlayer = value;
+  };
+
+  return {
+    playRound,
+    gameBoard,
+    clearBoard,
+    getCanPlay,
+    getCurrentPlayer,
+    setCanPlay,
+    setCurrentPlayer,
+  };
 };
 
 const Player = (mark) => ({ mark });
@@ -186,18 +203,18 @@ const screenController = (gridBoard) => {
   body.appendChild(winnerPage);
   populateBoard(gridBoard);
 
-  grid.addEventListener('click', (e) => {
-    // do not forget lines between click problem
-    const [canPlay, currentPlayer] = game.playRound(
-      e.target.dataset.rowIndex,
-      e.target.dataset.columnIndex
-    );
-    populateBoard(gridBoard);
+  const gridCells = Array.from(document.querySelectorAll('.game-grid-cell'));
 
-    if (!canPlay) {
-      winnerPage.firstElementChild.textContent = `winner is ${currentPlayer}`;
-      displaywinnerAndRestartPage(winnerPage, 'grid');
-    }
+  gridCells.forEach((cell) => {
+    cell.addEventListener('click', (e) => {
+      game.playRound(e.target.dataset.rowIndex, e.target.dataset.columnIndex);
+      populateBoard(gridBoard);
+
+      if (!game.getCanPlay()) {
+        winnerPage.firstElementChild.textContent = `winner is ${game.getCurrentPlayer()}`;
+        displaywinnerAndRestartPage(winnerPage, 'grid');
+      }
+    });
   });
 
   const restartBtn = document.querySelector('#restart');
@@ -205,6 +222,8 @@ const screenController = (gridBoard) => {
     displaywinnerAndRestartPage(winnerPage, 'none');
     game.clearBoard(gridBoard);
     populateBoard(gridBoard);
+    game.setCanPlay(true);
+    game.getCurrentPlayer('X');
   });
 };
 
