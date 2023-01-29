@@ -8,53 +8,24 @@ body {
   min-height: 100vh;
   padding: 24px 24px;
   display: grid;
-  grid-template-rows: fit-content 1fr 4fr;
+  grid-template-rows: min-content fit-content min-content;
   justify-items: center;
   gap: 16px;
 }
 
-.controllers {
+.control-panel {
   display: flex;
   flex-direction: column;
-  gap: 32px;
   align-items: center;
+  gap: 16px;
 }
 
-.controllers p {
-  font-size: 26px;
-  font-weight: 600;
+.human-mode,
+.computer-mode {
+  margin-bottom: 16px;
 }
-
-.controllers .opponent {
-  display: flex;
-  gap: 32px;
-  align-self: center;
-}
-
-.controllers .human-opponent {
-  display: flex;
-  gap: 32px;
-}
-
-.controllers .choice {
-  display: flex;
-  gap: 10px;
-}
-
-.choice [data-choice] {
-  width: 50px;
-  height: 50px;
-  display: grid;
-  place-content: center;
-  cursor: pointer;
-}
-
-.choice [data-choice='1-x'] {
-  background-color: grey;
-}
-
-.choice [data-choice='2-o'] {
-  background-color: grey;
+.game-mode input[type='radio'] {
+  margin-right: 10px;
 }
 
 .game-grid-container {

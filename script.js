@@ -8,6 +8,7 @@ const gameController = (playerOne, playerTwo) => {
 
   let currentPlayer = playerOne;
   let canPlay = true;
+  let isDraw = false;
 
   const printBoard = (board) => {
     console.log(`
@@ -83,11 +84,7 @@ const gameController = (playerOne, playerTwo) => {
   };
 
   const playRound = (row, col) => {
-    // printBoard(gameBoard);
-
     if (canPlay) {
-      // console.log(`player ${currentPlayer} turn!`);
-      // currentPlayer = switchPlayerTurn(currentPlayer);
       if (checkAvailability(gameBoard, row, col)) {
         gameBoard[row][col] = currentPlayer;
         if (isThereWinner(gameBoard, currentPlayer)) {
@@ -97,6 +94,7 @@ const gameController = (playerOne, playerTwo) => {
         if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
           console.log('Draw');
           canPlay = false;
+          isDraw = true;
         }
         console.log(canPlay);
         if (canPlay) {
@@ -105,7 +103,6 @@ const gameController = (playerOne, playerTwo) => {
         }
       }
     }
-    // return [canPlay, currentPlayer];
   };
 
   const clearBoard = (board) => {
@@ -124,6 +121,10 @@ const gameController = (playerOne, playerTwo) => {
   const setCurrentPlayer = (value) => {
     currentPlayer = value;
   };
+  const getIsDraw = () => isDraw;
+  const setIsDraw = (value) => {
+    isDraw = value;
+  };
 
   return {
     playRound,
@@ -133,6 +134,8 @@ const gameController = (playerOne, playerTwo) => {
     getCurrentPlayer,
     setCanPlay,
     setCurrentPlayer,
+    getIsDraw,
+    setIsDraw,
   };
 };
 
@@ -147,6 +150,50 @@ const game = gameController(playerOne.mark, playerTwo.mark);
 const screenController = (gridBoard) => {
   const body = document.querySelector('body');
   const gameTitle = document.querySelector('h1');
+
+  const CreateControlPanel = () => {
+    const controlPanel = document.createElement('div');
+    controlPanel.classList.add('control-panel');
+
+    const msg = document.createElement('p');
+    msg.textContent = 'Choose your Opponent: ';
+
+    const gameMode = document.createElement('div');
+    gameMode.classList.add('game-mode');
+
+    const human = document.createElement('div');
+    human.classList.add('human-mode');
+
+    const computer = document.createElement('div');
+    computer.classList.add('computer-mode');
+
+    const humanLabel = document.createElement('label');
+    humanLabel.textContent = 'Human';
+    humanLabel.htmlFor = 'human';
+
+    const humanRadioBtn = document.createElement('input');
+    humanRadioBtn.type = 'radio';
+    humanRadioBtn.id = 'human';
+    humanRadioBtn.value = 'human';
+    humanRadioBtn.name = 'choice';
+
+    const computerLabel = document.createElement('label');
+    computerLabel.textContent = 'Computer';
+    computerLabel.htmlFor = 'computer';
+
+    const computerRadioBtn = document.createElement('input');
+    computerRadioBtn.type = 'radio';
+    computerRadioBtn.id = 'computer';
+    computerRadioBtn.value = 'computer';
+    computerRadioBtn.name = 'choice';
+
+    human.append(humanRadioBtn, humanLabel);
+    computer.append(computerRadioBtn, computerLabel);
+    gameMode.append(human, computer);
+    controlPanel.append(msg, gameMode);
+
+    return controlPanel;
+  };
 
   const createGameGrid = (board) => {
     const gridContainer = document.createElement('div');
@@ -196,9 +243,11 @@ const screenController = (gridBoard) => {
     });
   };
 
+  const controlPanel = CreateControlPanel();
   const grid = createGameGrid(gridBoard);
   const winnerPage = createWinnerAndRestartPage();
 
+  body.appendChild(controlPanel);
   body.appendChild(grid);
   body.appendChild(winnerPage);
   populateBoard(gridBoard);
@@ -211,8 +260,17 @@ const screenController = (gridBoard) => {
       populateBoard(gridBoard);
 
       if (!game.getCanPlay()) {
-        winnerPage.firstElementChild.textContent = `winner is ${game.getCurrentPlayer()}`;
-        displaywinnerAndRestartPage(winnerPage, 'grid');
+        if (game.getIsDraw()) {
+          winnerPage.firstElementChild.textContent = 'Draw';
+          setTimeout(() => {
+            displaywinnerAndRestartPage(winnerPage, 'grid');
+          }, 2000);
+        } else {
+          winnerPage.firstElementChild.textContent = `winner is ${game.getCurrentPlayer()}`;
+          setTimeout(() => {
+            displaywinnerAndRestartPage(winnerPage, 'grid');
+          }, 2000);
+        }
       }
     });
   });
