@@ -9,6 +9,8 @@ const gameController = (playerOne, playerTwo) => {
   let currentPlayer = playerOne;
   let canPlay = true;
   let isDraw = false;
+  let gameMode = 'human';
+  let isComputerTurn = false;
 
   const printBoard = (board) => {
     console.log(`
@@ -29,9 +31,10 @@ const gameController = (playerOne, playerTwo) => {
     const columnIndex = Math.floor(Math.random() * (3 - 0) + 0);
 
     if (checkAvailability(board, rowIndex, columnIndex)) {
-      board[rowIndex][columnIndex] = player;
+      // board[rowIndex][columnIndex] = player;
+      return [rowIndex, columnIndex];
     } else {
-      play(board, player);
+      return play(board, player);
     }
   };
 
@@ -83,7 +86,7 @@ const gameController = (playerOne, playerTwo) => {
     }
   };
 
-  const playRound = (row, col) => {
+  const playAgainstHuman = (row, col) => {
     if (canPlay) {
       if (checkAvailability(gameBoard, row, col)) {
         gameBoard[row][col] = currentPlayer;
@@ -105,6 +108,49 @@ const gameController = (playerOne, playerTwo) => {
     }
   };
 
+  const playAgainstComputer = (row, col) => {
+    if (canPlay) {
+      if (checkAvailability(gameBoard, row, col)) {
+        gameBoard[row][col] = currentPlayer;
+        if (isThereWinner(gameBoard, currentPlayer)) {
+          console.log(`Winner is ${currentPlayer}`);
+          canPlay = false;
+        }
+        if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
+          console.log('Draw');
+          canPlay = false;
+          isDraw = true;
+        }
+        console.log(canPlay);
+        if (canPlay) {
+          currentPlayer = switchPlayerTurn(currentPlayer);
+          console.log(`player ${currentPlayer} turn!`);
+        }
+      }
+    }
+  };
+
+  const playRound = (row, col) => {
+    if (getChoice() === 'human') {
+      playAgainstHuman(row, col);
+    } else {
+      if (isComputerTurn) {
+        console.log(play(gameBoard, currentPlayer)[1]);
+        console.log(play(gameBoard, currentPlayer)[0]);
+        playAgainstComputer(
+          play(gameBoard, currentPlayer)[0],
+          play(gameBoard, currentPlayer)[1]
+        );
+        console.log('computer played');
+        isComputerTurn = false;
+      } else {
+        playAgainstHuman(row, col);
+        console.log('Human played');
+        isComputerTurn = true;
+      }
+    }
+  };
+
   const clearBoard = (board) => {
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board[i].length; j++) {
@@ -113,6 +159,18 @@ const gameController = (playerOne, playerTwo) => {
     }
   };
 
+  const getChoice = () => {
+    const radios = document.querySelectorAll('input[type="radio"]');
+    let checkedValue;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const radio of radios) {
+      if (radio.checked === true) {
+        checkedValue = radio.value;
+        break;
+      }
+    }
+    return checkedValue;
+  };
   const getCanPlay = () => canPlay;
   const setCanPlay = (value) => {
     canPlay = value;
@@ -125,6 +183,14 @@ const gameController = (playerOne, playerTwo) => {
   const setIsDraw = (value) => {
     isDraw = value;
   };
+  const getGameMode = () => gameMode;
+  const setGameMode = (value) => {
+    gameMode = value;
+  };
+  const getIsComputerTurn = () => isComputerTurn;
+  const setIscomputerTurn = (value) => {
+    isComputerTurn = value;
+  };
 
   return {
     playRound,
@@ -136,6 +202,10 @@ const gameController = (playerOne, playerTwo) => {
     setCurrentPlayer,
     getIsDraw,
     setIsDraw,
+    getGameMode,
+    setGameMode,
+    getIsComputerTurn,
+    setIscomputerTurn,
   };
 };
 
@@ -176,6 +246,7 @@ const screenController = (gridBoard) => {
     humanRadioBtn.id = 'human';
     humanRadioBtn.value = 'human';
     humanRadioBtn.name = 'choice';
+    humanRadioBtn.checked = true;
 
     const computerLabel = document.createElement('label');
     computerLabel.textContent = 'Computer';
@@ -242,6 +313,19 @@ const screenController = (gridBoard) => {
       cell.textContent = board[cell.dataset.rowIndex][cell.dataset.columnIndex];
     });
   };
+
+  // const getChoice = () => {
+  //   const radios = document.querySelectorAll('input[type="radio"]');
+  //   let checkedValue;
+  //   // eslint-disable-next-line no-restricted-syntax
+  //   for (const radio of radios) {
+  //     if (radio.checked === true) {
+  //       checkedValue = radio.value;
+  //       break;
+  //     }
+  //   }
+  //   return checkedValue;
+  // };
 
   const controlPanel = CreateControlPanel();
   const grid = createGameGrid(gridBoard);
