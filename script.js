@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable array-callback-return */
 /* eslint-disable no-plusplus */
 const gameController = (playerOne, playerTwo) => {
   const gameBoard = [
@@ -10,16 +12,15 @@ const gameController = (playerOne, playerTwo) => {
   let canPlay = true;
   let isDraw = false;
   let gameMode = 'human';
-  let isComputerTurn = false;
   let gameWinner = null;
 
-  const printBoard = (board) => {
-    console.log(`
-      ${board[0][0]}, ${board[0][1]}, ${board[0][2]}
-      ${board[1][0]}, ${board[1][1]}, ${board[1][2]}
-      ${board[2][0]}, ${board[2][1]}, ${board[2][2]}
-    `);
-  };
+  // const printBoard = (board) => {
+  //   console.log(`
+  //     ${board[0][0]}, ${board[0][1]}, ${board[0][2]}
+  //     ${board[1][0]}, ${board[1][1]}, ${board[1][2]}
+  //     ${board[2][0]}, ${board[2][1]}, ${board[2][2]}
+  //   `);
+  // };
 
   const switchPlayerTurn = (player) =>
     player === playerOne ? playerTwo : playerOne;
@@ -45,13 +46,9 @@ const gameController = (playerOne, playerTwo) => {
     const randomPick = Math.floor(
       Math.random() * (simpleAvailableIndexes.length - 0) + 0
     );
-    console.log('availableIndexes: ', simpleAvailableIndexes);
-    // console.log('randompick: ', randomPick);
-    // console.log(simpleAvailableIndexes[randomPick]);
+
     if (simpleAvailableIndexes[randomPick]) {
-      // console.log(`array: ${simpleAvailableIndexes[randomPick]}`);
       const [rowIndex, columnIndex] = simpleAvailableIndexes[randomPick];
-      // console.log('inside play: ', `row: ${rowIndex}, col: ${columnIndex}`);
       return [rowIndex, columnIndex];
     } else {
       return [null, null];
@@ -98,17 +95,15 @@ const gameController = (playerOne, playerTwo) => {
       }
     }
     if (counter > 1) {
-      // console.log(`counter is : ${counter}`);
       return true;
     } else {
-      // console.log(`else counter is ${counter}`);
       return false;
     }
   };
 
   const checkWinner = (board, player) => {
     if (isThereWinner(board, player)) {
-      console.log(`Winner is ${player}`);
+      // console.log(`Winner is ${player}`);
       canPlay = false;
       gameWinner = player;
     }
@@ -116,7 +111,7 @@ const gameController = (playerOne, playerTwo) => {
 
   const checkDraw = (board, player) => {
     if (!isThereWinner(board, player) && !isNotFull(board)) {
-      console.log('Draw');
+      // console.log('Draw');
       canPlay = false;
       isDraw = true;
     }
@@ -126,71 +121,33 @@ const gameController = (playerOne, playerTwo) => {
     if (canPlay) {
       if (checkAvailability(board, row, col)) {
         board[row][col] = player;
-        // if (isThereWinner(gameBoard, currentPlayer)) {
-        //   console.log(`Winner is ${currentPlayer}`);
-        //   canPlay = false;
-        // }
-        // if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
-        //   console.log('Draw');
-        //   canPlay = false;
-        //   isDraw = true;
-        // }
-        // console.log(canPlay);
-        // if (canPlay) {
-        //   currentPlayer = switchPlayerTurn(currentPlayer);
-        //   console.log(`player ${currentPlayer} turn!`);
-        // }
       }
     }
   };
 
   const playAgainstComputer = (board, row, col, player) => {
     board[row][col] = player;
-    // if (isThereWinner(board, player)) {
-    //   console.log(`Winner is ${player}`);
-    //   canPlay = false;
-    // }
-    // if (!isThereWinner(board, player) && !isNotFull(board)) {
-    //   console.log('Draw');
-    //   canPlay = false;
-    //   isDraw = true;
-    // }
   };
 
   const playRound = (row, col) => {
     if (getChoice() === 'human') {
       currentPlayer = switchPlayerTurn(currentPlayer);
-      console.log(`player ${currentPlayer} turn!`);
       playAgainstHuman(gameBoard, row, col, currentPlayer);
       checkWinner(gameBoard, currentPlayer);
       checkDraw(gameBoard, currentPlayer);
     } else {
-      console.clear();
-      console.log('entered else');
       if (checkAvailability(gameBoard, row, col)) {
         playAgainstHuman(gameBoard, row, col, currentPlayer);
         checkWinner(gameBoard, currentPlayer);
         checkDraw(gameBoard, currentPlayer);
-      } else {
       }
-      console.log('before');
-      printBoard(gameBoard);
 
-      // const rowIndex = play(gameBoard)[0];
-      // const colIndex = play(gameBoard)[1];
       const [rowIndex, colIndex] = play(gameBoard);
-      // console.log(`rowindex: ${rowIndex}, colindex: ${colIndex}`);
-
       if (rowIndex !== null || colIndex !== null) {
-        // currentPlayer = switchPlayerTurn(currentPlayer);
-        // console.log(`player ${currentPlayer} turn!`);
         playAgainstComputer(gameBoard, rowIndex, colIndex, playerOne);
         checkWinner(gameBoard, playerOne);
         checkDraw(gameBoard, playerOne);
-      } else {
       }
-      console.log('after');
-      printBoard(gameBoard);
     }
   };
 
@@ -230,14 +187,7 @@ const gameController = (playerOne, playerTwo) => {
   const setGameMode = (value) => {
     gameMode = value;
   };
-  const getIsComputerTurn = () => isComputerTurn;
-  const setIscomputerTurn = (value) => {
-    isComputerTurn = value;
-  };
   const getGameWinner = () => gameWinner;
-  // const setGameWinner = (value) => {
-  //   gameWinner = value;
-  // };
 
   return {
     playRound,
@@ -251,8 +201,6 @@ const gameController = (playerOne, playerTwo) => {
     setIsDraw,
     getGameMode,
     setGameMode,
-    getIsComputerTurn,
-    setIscomputerTurn,
     getGameWinner,
   };
 };
@@ -263,11 +211,10 @@ const playerOne = Player('X');
 const playerTwo = Player('O');
 
 const game = gameController(playerOne.mark, playerTwo.mark);
-// game.playRound();
 
 const screenController = (gridBoard) => {
   const body = document.querySelector('body');
-  const gameTitle = document.querySelector('h1');
+  // const gameTitle = document.querySelector('h1');
 
   const CreateControlPanel = () => {
     const controlPanel = document.createElement('div');
@@ -361,19 +308,6 @@ const screenController = (gridBoard) => {
       cell.textContent = board[cell.dataset.rowIndex][cell.dataset.columnIndex];
     });
   };
-
-  // const getChoice = () => {
-  //   const radios = document.querySelectorAll('input[type="radio"]');
-  //   let checkedValue;
-  //   // eslint-disable-next-line no-restricted-syntax
-  //   for (const radio of radios) {
-  //     if (radio.checked === true) {
-  //       checkedValue = radio.value;
-  //       break;
-  //     }
-  //   }
-  //   return checkedValue;
-  // };
 
   const controlPanel = CreateControlPanel();
   const grid = createGameGrid(gridBoard);
