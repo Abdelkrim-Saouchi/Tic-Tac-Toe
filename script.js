@@ -11,6 +11,7 @@ const gameController = (playerOne, playerTwo) => {
   let isDraw = false;
   let gameMode = 'human';
   let isComputerTurn = false;
+  let gameWinner = null;
 
   const printBoard = (board) => {
     console.log(`
@@ -26,15 +27,34 @@ const gameController = (playerOne, playerTwo) => {
   const checkAvailability = (board, rowIndex, columnIndex) =>
     board[rowIndex][columnIndex] === ' ';
 
-  const play = (board, player) => {
-    const rowIndex = Math.floor(Math.random() * (3 - 0) + 0);
-    const columnIndex = Math.floor(Math.random() * (3 - 0) + 0);
+  const play = (board) => {
+    const availableIndexes = board
+      .map((subArray, roIndex) =>
+        subArray.map((ele, colIndex) => {
+          if (ele === ' ') return [roIndex, colIndex];
+        })
+      )
+      .map((row) => row.filter((ele) => ele !== undefined));
 
-    if (checkAvailability(board, rowIndex, columnIndex)) {
-      // board[rowIndex][columnIndex] = player;
+    const simpleAvailableIndexes = [];
+    for (let i = 0; i < availableIndexes.length; i++) {
+      for (let j = 0; j < availableIndexes[i].length; j++) {
+        simpleAvailableIndexes.push(availableIndexes[i][j]);
+      }
+    }
+    const randomPick = Math.floor(
+      Math.random() * (simpleAvailableIndexes.length - 0) + 0
+    );
+    console.log('availableIndexes: ', simpleAvailableIndexes);
+    // console.log('randompick: ', randomPick);
+    // console.log(simpleAvailableIndexes[randomPick]);
+    if (simpleAvailableIndexes[randomPick]) {
+      // console.log(`array: ${simpleAvailableIndexes[randomPick]}`);
+      const [rowIndex, columnIndex] = simpleAvailableIndexes[randomPick];
+      // console.log('inside play: ', `row: ${rowIndex}, col: ${columnIndex}`);
       return [rowIndex, columnIndex];
     } else {
-      return play(board, player);
+      return [null, null];
     }
   };
 
@@ -86,68 +106,91 @@ const gameController = (playerOne, playerTwo) => {
     }
   };
 
-  const playAgainstHuman = (row, col) => {
+  const checkWinner = (board, player) => {
+    if (isThereWinner(board, player)) {
+      console.log(`Winner is ${player}`);
+      canPlay = false;
+      gameWinner = player;
+    }
+  };
+
+  const checkDraw = (board, player) => {
+    if (!isThereWinner(board, player) && !isNotFull(board)) {
+      console.log('Draw');
+      canPlay = false;
+      isDraw = true;
+    }
+  };
+
+  const playAgainstHuman = (board, row, col, player) => {
     if (canPlay) {
-      if (checkAvailability(gameBoard, row, col)) {
-        gameBoard[row][col] = currentPlayer;
-        if (isThereWinner(gameBoard, currentPlayer)) {
-          console.log(`Winner is ${currentPlayer}`);
-          canPlay = false;
-        }
-        if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
-          console.log('Draw');
-          canPlay = false;
-          isDraw = true;
-        }
-        console.log(canPlay);
-        if (canPlay) {
-          currentPlayer = switchPlayerTurn(currentPlayer);
-          console.log(`player ${currentPlayer} turn!`);
-        }
+      if (checkAvailability(board, row, col)) {
+        board[row][col] = player;
+        // if (isThereWinner(gameBoard, currentPlayer)) {
+        //   console.log(`Winner is ${currentPlayer}`);
+        //   canPlay = false;
+        // }
+        // if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
+        //   console.log('Draw');
+        //   canPlay = false;
+        //   isDraw = true;
+        // }
+        // console.log(canPlay);
+        // if (canPlay) {
+        //   currentPlayer = switchPlayerTurn(currentPlayer);
+        //   console.log(`player ${currentPlayer} turn!`);
+        // }
       }
     }
   };
 
-  const playAgainstComputer = (row, col) => {
-    if (canPlay) {
-      if (checkAvailability(gameBoard, row, col)) {
-        gameBoard[row][col] = currentPlayer;
-        if (isThereWinner(gameBoard, currentPlayer)) {
-          console.log(`Winner is ${currentPlayer}`);
-          canPlay = false;
-        }
-        if (!isThereWinner(gameBoard, currentPlayer) && !isNotFull(gameBoard)) {
-          console.log('Draw');
-          canPlay = false;
-          isDraw = true;
-        }
-        console.log(canPlay);
-        if (canPlay) {
-          currentPlayer = switchPlayerTurn(currentPlayer);
-          console.log(`player ${currentPlayer} turn!`);
-        }
-      }
-    }
+  const playAgainstComputer = (board, row, col, player) => {
+    board[row][col] = player;
+    // if (isThereWinner(board, player)) {
+    //   console.log(`Winner is ${player}`);
+    //   canPlay = false;
+    // }
+    // if (!isThereWinner(board, player) && !isNotFull(board)) {
+    //   console.log('Draw');
+    //   canPlay = false;
+    //   isDraw = true;
+    // }
   };
 
   const playRound = (row, col) => {
     if (getChoice() === 'human') {
-      playAgainstHuman(row, col);
+      currentPlayer = switchPlayerTurn(currentPlayer);
+      console.log(`player ${currentPlayer} turn!`);
+      playAgainstHuman(gameBoard, row, col, currentPlayer);
+      checkWinner(gameBoard, currentPlayer);
+      checkDraw(gameBoard, currentPlayer);
     } else {
-      if (isComputerTurn) {
-        console.log(play(gameBoard, currentPlayer)[1]);
-        console.log(play(gameBoard, currentPlayer)[0]);
-        playAgainstComputer(
-          play(gameBoard, currentPlayer)[0],
-          play(gameBoard, currentPlayer)[1]
-        );
-        console.log('computer played');
-        isComputerTurn = false;
+      console.clear();
+      console.log('entered else');
+      if (checkAvailability(gameBoard, row, col)) {
+        playAgainstHuman(gameBoard, row, col, currentPlayer);
+        checkWinner(gameBoard, currentPlayer);
+        checkDraw(gameBoard, currentPlayer);
       } else {
-        playAgainstHuman(row, col);
-        console.log('Human played');
-        isComputerTurn = true;
       }
+      console.log('before');
+      printBoard(gameBoard);
+
+      // const rowIndex = play(gameBoard)[0];
+      // const colIndex = play(gameBoard)[1];
+      const [rowIndex, colIndex] = play(gameBoard);
+      // console.log(`rowindex: ${rowIndex}, colindex: ${colIndex}`);
+
+      if (rowIndex !== null || colIndex !== null) {
+        // currentPlayer = switchPlayerTurn(currentPlayer);
+        // console.log(`player ${currentPlayer} turn!`);
+        playAgainstComputer(gameBoard, rowIndex, colIndex, playerOne);
+        checkWinner(gameBoard, playerOne);
+        checkDraw(gameBoard, playerOne);
+      } else {
+      }
+      console.log('after');
+      printBoard(gameBoard);
     }
   };
 
@@ -191,6 +234,10 @@ const gameController = (playerOne, playerTwo) => {
   const setIscomputerTurn = (value) => {
     isComputerTurn = value;
   };
+  const getGameWinner = () => gameWinner;
+  // const setGameWinner = (value) => {
+  //   gameWinner = value;
+  // };
 
   return {
     playRound,
@@ -206,6 +253,7 @@ const gameController = (playerOne, playerTwo) => {
     setGameMode,
     getIsComputerTurn,
     setIscomputerTurn,
+    getGameWinner,
   };
 };
 
@@ -302,7 +350,7 @@ const screenController = (gridBoard) => {
     return page;
   };
 
-  const displaywinnerAndRestartPage = (page, display) => {
+  const displayWinnerAndRestartPage = (page, display) => {
     page.style.display = display;
   };
 
@@ -347,12 +395,12 @@ const screenController = (gridBoard) => {
         if (game.getIsDraw()) {
           winnerPage.firstElementChild.textContent = 'Draw';
           setTimeout(() => {
-            displaywinnerAndRestartPage(winnerPage, 'grid');
+            displayWinnerAndRestartPage(winnerPage, 'grid');
           }, 2000);
         } else {
-          winnerPage.firstElementChild.textContent = `winner is ${game.getCurrentPlayer()}`;
+          winnerPage.firstElementChild.textContent = `winner is ${game.getGameWinner()}`;
           setTimeout(() => {
-            displaywinnerAndRestartPage(winnerPage, 'grid');
+            displayWinnerAndRestartPage(winnerPage, 'grid');
           }, 2000);
         }
       }
@@ -361,11 +409,11 @@ const screenController = (gridBoard) => {
 
   const restartBtn = document.querySelector('#restart');
   restartBtn.addEventListener('click', () => {
-    displaywinnerAndRestartPage(winnerPage, 'none');
+    displayWinnerAndRestartPage(winnerPage, 'none');
     game.clearBoard(gridBoard);
     populateBoard(gridBoard);
     game.setCanPlay(true);
-    game.getCurrentPlayer('X');
+    // game.setCurrentPlayer('X');
   });
 };
 
