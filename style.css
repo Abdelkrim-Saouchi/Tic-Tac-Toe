@@ -7,10 +7,12 @@
 body {
   min-height: 100vh;
   padding: 24px 24px;
-  display: grid;
-  grid-template-rows: min-content fit-content min-content;
-  justify-items: center;
-  gap: 16px;
+  background-color: #00eabb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
 }
 
 .control-panel {
@@ -37,16 +39,17 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
-  gap: 8px;
-  background-color: black;
+  gap: 1px 2px;
+  background-color: #fffcc9;
+  color: #fffcc9;
 }
 
 .game-grid-cell {
   width: 100px;
   height: 100px;
-  font-size: 32px;
+  font-size: 48px;
   font-weight: 700;
-  background-color: yellow;
+  background-color: #00d4bc;
   display: grid;
   place-content: center;
   cursor: pointer;
