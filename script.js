@@ -1,6 +1,3 @@
-/* eslint-disable consistent-return */
-/* eslint-disable array-callback-return */
-/* eslint-disable no-plusplus */
 const gameController = (playerOne, playerTwo) => {
   const gameBoard = [
     [' ', ' ', ' '],
@@ -28,7 +25,7 @@ const gameController = (playerOne, playerTwo) => {
   const checkAvailability = (board, rowIndex, columnIndex) =>
     board[rowIndex][columnIndex] === ' ';
 
-  const play = (board) => {
+  const playRandom = (board) => {
     const availableIndexes = board
       .map((subArray, roIndex) =>
         subArray.map((ele, colIndex) => {
@@ -51,7 +48,7 @@ const gameController = (playerOne, playerTwo) => {
       const [rowIndex, columnIndex] = simpleAvailableIndexes[randomPick];
       return [rowIndex, columnIndex];
     } else {
-      return [null, null];
+      return [null, null]; // handle undefined error when board is full
     }
   };
 
@@ -131,22 +128,24 @@ const gameController = (playerOne, playerTwo) => {
 
   const playRound = (row, col) => {
     if (getChoice() === 'human') {
-      currentPlayer = switchPlayerTurn(currentPlayer);
       playAgainstHuman(gameBoard, row, col, currentPlayer);
       checkWinner(gameBoard, currentPlayer);
       checkDraw(gameBoard, currentPlayer);
+      currentPlayer = switchPlayerTurn(currentPlayer);
     } else {
+      // if play is against computer
       if (checkAvailability(gameBoard, row, col)) {
         playAgainstHuman(gameBoard, row, col, currentPlayer);
         checkWinner(gameBoard, currentPlayer);
         checkDraw(gameBoard, currentPlayer);
-      }
 
-      const [rowIndex, colIndex] = play(gameBoard);
-      if (rowIndex !== null || colIndex !== null) {
-        playAgainstComputer(gameBoard, rowIndex, colIndex, playerOne);
-        checkWinner(gameBoard, playerOne);
-        checkDraw(gameBoard, playerOne);
+        const [rowIndex, colIndex] = playRandom(gameBoard);
+        // handle undefined error when gameBoard is full
+        if (rowIndex !== null || colIndex !== null) {
+          playAgainstComputer(gameBoard, rowIndex, colIndex, playerTwo);
+          checkWinner(gameBoard, playerTwo);
+          checkDraw(gameBoard, playerTwo);
+        }
       }
     }
   };
@@ -175,7 +174,6 @@ const gameController = (playerOne, playerTwo) => {
   const setCanPlay = (value) => {
     canPlay = value;
   };
-  const getCurrentPlayer = () => currentPlayer;
   const setCurrentPlayer = (value) => {
     currentPlayer = value;
   };
@@ -194,7 +192,6 @@ const gameController = (playerOne, playerTwo) => {
     gameBoard,
     clearBoard,
     getCanPlay,
-    getCurrentPlayer,
     setCanPlay,
     setCurrentPlayer,
     getIsDraw,
@@ -214,7 +211,6 @@ const game = gameController(playerOne.mark, playerTwo.mark);
 
 const screenController = (gridBoard) => {
   const body = document.querySelector('body');
-  // const gameTitle = document.querySelector('h1');
 
   const CreateControlPanel = () => {
     const controlPanel = document.createElement('div');
@@ -318,27 +314,14 @@ const screenController = (gridBoard) => {
   body.appendChild(winnerPage);
   populateBoard(gridBoard);
 
+  const gameModeRadioBtns = Array.from(
+    document.querySelectorAll('input[type="radio"')
+  );
+
   const gridCells = Array.from(document.querySelectorAll('.game-grid-cell'));
 
   gridCells.forEach((cell) => {
-    cell.addEventListener('click', (e) => {
-      game.playRound(e.target.dataset.rowIndex, e.target.dataset.columnIndex);
-      populateBoard(gridBoard);
-
-      if (!game.getCanPlay()) {
-        if (game.getIsDraw()) {
-          winnerPage.firstElementChild.textContent = 'Draw';
-          setTimeout(() => {
-            displayWinnerAndRestartPage(winnerPage, 'grid');
-          }, 2000);
-        } else {
-          winnerPage.firstElementChild.textContent = `winner is ${game.getGameWinner()}`;
-          setTimeout(() => {
-            displayWinnerAndRestartPage(winnerPage, 'grid');
-          }, 2000);
-        }
-      }
-    });
+    cell.addEventListener('click', cellEventHandler);
   });
 
   const restartBtn = document.querySelector('#restart');
@@ -347,8 +330,33 @@ const screenController = (gridBoard) => {
     game.clearBoard(gridBoard);
     populateBoard(gridBoard);
     game.setCanPlay(true);
-    // game.setCurrentPlayer('X');
+    game.setCurrentPlayer('X'); // prevent same mark when switch between human and computer mode
+    gameModeRadioBtns.forEach((radioBtn) => {
+      radioBtn.disabled = false;
+    });
   });
+
+  function cellEventHandler(e) {
+    game.playRound(e.target.dataset.rowIndex, e.target.dataset.columnIndex);
+    populateBoard(gridBoard);
+    gameModeRadioBtns.forEach((radioBtn) => {
+      radioBtn.disabled = true;
+    });
+
+    if (!game.getCanPlay()) {
+      if (game.getIsDraw()) {
+        winnerPage.firstElementChild.textContent = 'Draw';
+        setTimeout(() => {
+          displayWinnerAndRestartPage(winnerPage, 'grid');
+        }, 2000);
+      } else {
+        winnerPage.firstElementChild.textContent = `winner is ${game.getGameWinner()}`;
+        setTimeout(() => {
+          displayWinnerAndRestartPage(winnerPage, 'grid');
+        }, 2000);
+      }
+    }
+  }
 };
 
 screenController(game.gameBoard);

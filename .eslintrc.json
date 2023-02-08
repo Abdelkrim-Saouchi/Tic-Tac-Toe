@@ -13,6 +13,9 @@
     "no-param-reassign": "off",
     "no-use-before-define": "off",
     "no-else-return": "off",
-    "no-lonely-if": "off"
+    "no-lonely-if": "off",
+    "consistent-return": "off",
+    "array-callback-return": "off",
+    "no-plusplus": "off"
   }
 }
